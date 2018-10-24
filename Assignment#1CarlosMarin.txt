@@ -1,0 +1,214 @@
+/*
+ * CS 220
+ * February 2018
+ * Carlos Marin
+ * Programming Assignment 1
+ */
+
+import java.util.Scanner;
+import java.io.*;
+
+public class NearestNeighbor 
+{
+	//first declare data's arrays
+			//and training datas
+			static double[][] arrTrainDatas = new double [75][4];
+			static String[] strTrainClass  = new String [75];
+			
+			//testing data
+			static double[][] arrTestData  = new double [75][4];
+			static String[] strTestClass   = new String [75];
+		
+			//matches the correct class 
+			static String[] arrMatchClass  = new String [75];
+			
+			//import the classic scanner then use it to figure out what data were using
+			static Scanner scan = new Scanner(System.in);
+	
+	public static void main(String[] args)
+	{
+		//these will be where we pull the naked data from
+			System.out.println("Enter the name of the training file: ");
+				String fileLocationA = scan.nextLine();
+			
+			System.out.println("Enter the name of the testing file : ");
+				String fileLocationB = scan.nextLine();
+		
+					//time to load the data in order to use it in our arrays
+					loadTrainingData(fileLocationA);
+			
+					loadTestingData(fileLocationB);
+		
+		//now we use two methods that will do the work of calculating the accuracy and looking at the data
+			ReadTestData();
+			CalcAccuracy();
+		
+	}
+		//so this is supposed to find matches and divide it by the number of samples which lead to our accuracy number
+		static void CalcAccuracy()
+		{
+			int matches = 0;
+			for(int samples = 0; samples< strTestClass.length; samples ++)
+			{
+				if(strTestClass[samples].equalsIgnoreCase(arrMatchClass[samples]))
+				{
+					matches++;
+				}		
+			}
+			double accuracy = (double)matches/(double)strTestClass.length;
+			//we divide # of matches w number of data samples
+				System.out.println(" matchCount : "+matches);
+				System.out.println(" ACCURACY : "+accuracy);
+		}
+		//now we are going to find the closest data to data
+		static void ReadTestData() 
+		{
+			System.out.println("EX#: TRUE LABEL,     PREDICTED LABEL");
+			
+			//compares trained lines vs tested lines to find out the nearest neighbor.
+			 for(int i=0; i<arrTestData.length; i++) 
+			 {
+				 double arrTestDatas[] = arrTestData[i];//this will add the test data separately
+				 double shortDistance   = 0.0;
+				 double currentDistance = 0.0;
+				 //Iterate training sample to calculate distance
+				 int smallestIndex = 0;
+				 //nested for loop in order to read data from the first one to the last
+				 for(int j=0; j<arrTrainDatas.length; j++) 
+				 {
+					 double arrTrainData[] = arrTrainDatas[j];
+					 currentDistance = calculateDistance(arrTestDatas, arrTrainData);
+					 	if(j==0)
+					 	{
+					 		shortDistance = currentDistance;
+					 	}
+					 	if (currentDistance < shortDistance)
+					    {
+						 	shortDistance = currentDistance;
+						 	smallestIndex = j;
+					    }
+				 }
+				 //now the correct class label will match the trained data
+				arrMatchClass[i] = strTrainClass[smallestIndex];
+				 // Smallest Index + smallestIndex + Nearest Classification  + arrtrainclass[smallestIndex]);
+				 System.out.println(i+1
+						 			+":" 
+						 			+strTestClass[i] 
+						 			+"      "
+						 			+arrMatchClass[i]);
+				 
+				 
+			 }
+		}
+		//euclidean formula here we go!
+		static double calculateDistance(double[] arrTestData,
+				double[] arrTrainData) 
+		{
+			//NOW we grab our two xy's which is the train and test data then plug and chug
+			double distance = Math.sqrt(Math.pow(arrTrainData[0] - arrTestData[0], 2) 
+										+ Math.pow(arrTrainData[1] - arrTestData[1], 2) 
+										+ Math.pow(arrTrainData[2] - arrTestData[2], 2) 
+										+ Math.pow(arrTrainData[3] - arrTestData[3], 2)); 
+			return distance; 
+		}
+		static void loadTestingData(String fileLocationB) 
+		{
+			/*ok, I know this is different from using the scanner to read the file I followed 
+			 * an online guide with aid from the book and found bufferedreader to be "more efficient"
+			 * but in all honestly I just understood it better and was able to use it with confidence
+			 */
+			BufferedReader br = null;
+	        String line = "";
+	        int rowCount = 0;
+	        try {
+	            br = new BufferedReader(new FileReader(fileLocationB));
+	            while ((line = br.readLine()) != null) {
+	                // use comma as separator
+	                String[] row = line.split(",");
+	               // adds loaded row to row
+	                //sepal length
+	                arrTestData[rowCount][0] = Double.valueOf(row[0]);
+	                //sepal width
+	                arrTestData[rowCount][1] = Double.valueOf(row[1]);
+	                //petal length
+	                arrTestData[rowCount][2] = Double.valueOf(row[2]);
+	                //petal width
+	                arrTestData[rowCount][3] = Double.valueOf(row[3]);
+	                //Classification name
+	                strTestClass[rowCount] = row[4];
+	                
+	                rowCount++;
+	            }}
+	        catch (FileNotFoundException e) 
+	        {
+            e.printStackTrace();
+	        } 
+	        catch (IOException e) 
+	        {
+            e.printStackTrace();
+	        } 
+	        finally 
+	        {
+            if (br != null) 
+            {
+                try 
+                {
+                    br.close();
+                } catch (IOException e) 
+                {
+                    e.printStackTrace();
+                }
+            }
+	        }
+	        }
+        
+		static void loadTrainingData(String fileLocationA) 
+		{
+			//reused the logic flow of testingData method
+			BufferedReader br = null;
+	        String line = "";
+	        int rowCount = 0;
+	        try {
+	            br = new BufferedReader(new FileReader(fileLocationA));
+	            while ((line = br.readLine()) != null) {
+	                // use comma as separator
+	                String[] row = line.split(",");
+	               // adds loaded row to row
+	                //sepal length
+	                arrTrainDatas[rowCount][0] = Double.valueOf(row[0]);
+	                //sepal width
+	                arrTrainDatas[rowCount][1] = Double.valueOf(row[1]);
+	                //petal length
+	                arrTrainDatas[rowCount][2] = Double.valueOf(row[2]);
+	                //petal width
+	                arrTrainDatas[rowCount][3] = Double.valueOf(row[3]);
+	                //Classification name
+	                strTrainClass[rowCount] = row[4];
+	                
+	                rowCount++;
+	            }}
+	        catch (FileNotFoundException e) 
+	        {
+            e.printStackTrace();
+	        } 
+	        catch (IOException e) 
+	        {
+            e.printStackTrace();
+	        } 
+	        finally 
+	        {
+            if (br != null) 
+            {
+                try 
+                {
+                    br.close();
+                } catch (IOException e) 
+                {
+                    e.printStackTrace();
+                }
+            }
+	        }
+		}
+		
+}
+
